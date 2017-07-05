@@ -14,3 +14,7 @@ res = tree.splitDataSet(dataSet, 0, 1)
 
 print(res)
 # [[1, 'yes'], [1, 'yes'], [0, 'no']]
+
+#===最好分类特征的选择测试
+print(tree.chooseBestFeatureToSplit(dataSet))
+#0
