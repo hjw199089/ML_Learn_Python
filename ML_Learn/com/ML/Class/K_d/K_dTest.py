@@ -6,7 +6,7 @@ print(dataSet)
 # [[1, 1, 'yes'], [1, 1, 'yes'], [1, 0, 'no'], [0, 1, 'no'], [0, 1, 'no']]
 
 
-#=====数集香农熵测试
+#=====数据集熵测试
 print(tree.calcShannonEnt(dataSet))
 #0.9709505944546686
 
@@ -18,3 +18,11 @@ print(res)
 #===最好分类特征的选择测试
 print(tree.chooseBestFeatureToSplit(dataSet))
 #0
+
+#===测试分类器
+myDat,labels = tree.createDataSet()
+labelsCopy = labels.copy()
+myTree = tree.createTree(myDat,labelsCopy)
+resClass = tree.classify(myTree,labels,[1,0])
+print(resClass)
+#no

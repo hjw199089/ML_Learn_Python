@@ -13,8 +13,7 @@ def createDataSet():
     # change to discrete values
     return dataSet, labels
 
-
-# ======计算给􏴫数集的香农熵
+#计算熵
 def calcShannonEnt(dataSet):
     numEntries = len(dataSet)
     labelCounts = {}
@@ -29,23 +28,19 @@ def calcShannonEnt(dataSet):
     return shannonEnt
 
 
-# ========􏾖􏳟􏲔􏲕􏾗􏾖􏳟􏲔􏲕􏾗划分数据集
-# 􏷁􏺌分的数据􏱙、􏺌分数据􏱙的􏲯􏲰、需要返回的特征值
+#划分数据集
 def splitDataSet(dataSet, axis, value):
     retDataSet = []
     for featVec in dataSet:
         if featVec[axis] == value:
-            reducedFeatVec = featVec[:axis]  # chop out axis used for splitting
+            reducedFeatVec = featVec[:axis]
             reducedFeatVec.extend(featVec[axis + 1:])
             retDataSet.append(reducedFeatVec)
     return retDataSet
-
-# 􏴀􏴪=====最好的数据􏱙划分特征值的选择
-# 选取特征划分数据集，计算最好的划分数据集的特征
-# 默认列表形式存储数据，最后一个元素为类别标签,其余为特征
-# 先计算原始的信息熵，用于和划分之后比较
-# 遍历计算用每一个特征划分数据的信息增益，取增益最大的特征为最好的数据􏱙划分特征值
-
+#数据最优划分方式
+#计算最优特征进行数据集的划分
+#计算原始信息熵，用于比较
+#遍历每一个特征划分数据集的信息增益，取最大增益对应的特征划分数据集
 def chooseBestFeatureToSplit(dataSet):
     #默认列表形式存储数据，最后一个元素为类别标签,其余为特征
     numFeatures = len(dataSet[0]) - 1
@@ -70,6 +65,58 @@ def chooseBestFeatureToSplit(dataSet):
             bestInfoGain = newEntropy
             bestFeature = i
     return bestFeature
+
+#出现次数最多的分类名称
+def majority(classList):
+    classCount = {}
+    for vote in classList:
+        if vote not in classCount.keys():classCount[vote]=0
+        classCount[vote]+=1
+    sortedClassCount = sorted(classCount.items(),key = operator.itemgetter(0),reverse = True)
+    return sortedClassCount[0][0]
+
+#构建决策树
+#利用以上模块基于最好的属性划分数据集，每个数据集上再次最优划分，以次递归
+#递归的结束条件，遍历完所有的数据集属性，或者每个分支下的所有实例都有相同的分类;
+#或者特征使用完仍然不能唯一分类数据，采用多数表决的方式选择该数据块的分类标签
+def createTree(dataSet,labels):
+    #类别
+    classList = [example[-1] for  example in dataSet]
+    #数据集中所有的类别都一样了，结束递归
+    if classList.count(classList[0]) == len(classList):
+        return classList[0] #返回类别
+    if len(dataSet[0]) == 1: #没有特征可用了，结束递归
+        return  majority(classList) #对本组内的类别进行多数表决
+    #选择最优特征进行数据划分（分支）
+    bestFeat = chooseBestFeatureToSplit(dataSet)
+    bestFeatLabel = labels[bestFeat]
+    #用一个map存储决策树，其中值为label代表节点，为map代表分支
+    myTree = {bestFeatLabel:{}}
+    del(labels[bestFeat])
+    featValues = [example[bestFeat] for example in dataSet]
+    uniqueValues = set(featValues)
+    for value in uniqueValues:
+        suLables = labels[:] #List 作为参数传递时 是指针型，会被修改，这里拷贝一份
+        #返回的树作为当前节点的子节点
+        myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet,bestFeat,value),suLables)
+    return myTree
+
+#测试决策树
+def classify(inputTree,featureLables,testVec):
+    firstStr = list(inputTree.keys())[0]#根节点
+    secondDict = inputTree[firstStr]
+    #根节点在 输入向量中的位置
+    featIndex = featureLables.index(firstStr)
+    key = testVec[featIndex]
+    #得到改特征的分类数据块
+    valueOfFeat = secondDict[key]
+    #判断是否为叶子节点了,否则继续递归
+    if isinstance(valueOfFeat,dict):
+        classLabel = classify(valueOfFeat,featureLables,testVec)
+    else: classLabel = valueOfFeat
+    return classLabel
+
+
 
 
 
