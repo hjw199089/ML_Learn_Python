@@ -112,3 +112,5 @@ def smoSimple(dataMatIn, classLabels, C, toler, maxIter):
         else: iter = 0 #alphaPairsChanged = 1 说明还能优化，要迭代到不能优化
         print( "iteration number: %d" % iter)
     return b,alphas
+
+
