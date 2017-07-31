@@ -1,7 +1,7 @@
 import os
 
 from numpy import *
-from ML_Learn.com.ML.Regression.BasicRegressionOLS import regression
+from ML_Learn.com.ML.Regression.Regres_OLS import regression
 import matplotlib.pyplot as plt
 
 #导入训练数据集
